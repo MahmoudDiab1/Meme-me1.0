@@ -13,6 +13,7 @@
 		0AE590D924907345000AA947 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 0AE590D724907345000AA947 /* Main.storyboard */; };
 		0AE590DB24907348000AA947 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0AE590DA24907348000AA947 /* Assets.xcassets */; };
 		0AE590DE24907348000AA947 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 0AE590DC24907348000AA947 /* LaunchScreen.storyboard */; };
+		0AE590E82490C297000AA947 /* MemeImageModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AE590E72490C297000AA947 /* MemeImageModel.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -24,6 +25,7 @@
 		0AE590DA24907348000AA947 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		0AE590DD24907348000AA947 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		0AE590DF24907348000AA947 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		0AE590E72490C297000AA947 /* MemeImageModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemeImageModel.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -59,6 +61,7 @@
 				0AE590D124907345000AA947 /* AppDelegate.swift */,
 				0AE590D324907345000AA947 /* SceneDelegate.swift */,
 				0AE590D524907345000AA947 /* ViewController.swift */,
+				0AE590E72490C297000AA947 /* MemeImageModel.swift */,
 				0AE590D724907345000AA947 /* Main.storyboard */,
 				0AE590DA24907348000AA947 /* Assets.xcassets */,
 				0AE590DC24907348000AA947 /* LaunchScreen.storyboard */,
@@ -140,6 +143,7 @@
 			files = (
 				0AE590D624907345000AA947 /* ViewController.swift in Sources */,
 				0AE590D224907345000AA947 /* AppDelegate.swift in Sources */,
+				0AE590E82490C297000AA947 /* MemeImageModel.swift in Sources */,
 				0AE590D424907345000AA947 /* SceneDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
