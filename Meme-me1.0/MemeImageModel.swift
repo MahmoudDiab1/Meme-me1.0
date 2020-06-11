@@ -8,9 +8,11 @@
 
 import Foundation
 import UIKit
-struct MemeImageModel
-{
+
+struct MemeImageModel {
     let topText:String?
     let bottomText:String?
-    let image:UIImage 
+    let origionalImage:UIImage
+    let memedImage:UIImage
+    
 }

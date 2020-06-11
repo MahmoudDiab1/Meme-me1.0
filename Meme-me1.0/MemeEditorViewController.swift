@@ -8,10 +8,10 @@
 
 import UIKit
 
-class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate, UITextFieldDelegate  {
+class MemeEditorViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate, UITextFieldDelegate  {
     @IBOutlet weak var shareBtn: UIButton!
+    @IBOutlet weak var cancelButton: UIButton!
     @IBOutlet weak var toolBar: UIToolbar!
-    
     @IBOutlet weak var navBar: UINavigationItem!
     //MARK:         - outlets and Variables
     @IBOutlet weak var topTextField: UITextField!
@@ -43,34 +43,39 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
     
     // MARK:- IBActions
     
-    @IBAction func pickAnImageFromAlbume(_ sender: Any)
+    func pickWithSource (sourceType : UIImagePickerController.SourceType)
     {
         pickerController.delegate = self
         present (pickerController,animated: true , completion: nil)
+        if sourceType == .camera {
+            pickerController.sourceType = .camera
+        } else {
+            pickerController.sourceType = .photoLibrary
+        }
     }
     
-    @IBAction func captureFromCamera(_ sender: Any)
-    {
-        pickerController.delegate = self
-        pickerController.sourceType = .camera
-        present(pickerController, animated: true, completion: nil)
+    @IBAction func pickAnImageFromAlbume(_ sender: Any) {
+        pickWithSource(sourceType: .photoLibrary)
+    }
+    
+    @IBAction func captureFromCamera(_ sender: Any) {
+        pickWithSource(sourceType: .camera)
     }
     
     @IBAction func shareBtnPressed(_ sender: Any) {
         
         let memedImage =  generateMemedImage()
         let activityController = UIActivityViewController(activityItems: [memedImage], applicationActivities: nil)
-        activityController.completionWithItemsHandler = {(activityType: UIActivity.ActivityType?, completed: Bool, returnedItems: [Any]?, error: Error?) in
-            if completed == true
-            {
-                self.save()
+        activityController.completionWithItemsHandler = {(_, completed: Bool, _, _) in
+            if completed == true {
+                self.save(memedImage)
                 self.dismiss(animated: true, completion: nil)
             }
         }
         present(activityController, animated: true, completion: nil)
     }
     
-    @IBAction func cancleBtnPressed(_ sender: Any) {
+    @IBAction func cancelButtonPressed(_ sender: UIButton) {
         topTextField.text = "Top"
         bottomTextField.text = "Bottom"
         memeImageView.image = nil
@@ -79,17 +84,18 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
     
     //    MARK:- save meme
     
-    func save() {
-        let image = memeImageView.image
-        let memedImage = MemeImageModel(topText: topTextField.text, bottomText: bottomTextField.text, image: image!)
+    func save(_ memedImage:UIImage) {
+        
+        let meme = MemeImageModel(topText: topTextField.text!, bottomText: bottomTextField.text!, origionalImage: memeImageView.image! ,memedImage: memedImage)
     }
+    
     
     
     //    MARK:- Generate Memed Image
     func generateMemedImage() -> UIImage {
         toolBar.isHidden = true
-        UIGraphicsBeginImageContext(self.view.frame.size)
-        view.drawHierarchy(in: self.view.frame, afterScreenUpdates: true)
+        UIGraphicsBeginImageContext(view.frame.size)
+        view.drawHierarchy(in: view.frame, afterScreenUpdates: true)
         let memedImage:UIImage = UIGraphicsGetImageFromCurrentImageContext()!
         UIGraphicsEndImageContext()
         toolBar.isHidden = false
@@ -97,7 +103,7 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
     }
     
     //    MARK:- keyboard handeling
- 
+    
     func subscribeToKeyboardNotifications() {
         NotificationCenter.default.addObserver(self, selector: #selector(keyBoardWillShow(_:)) ,
                                                name: UIResponder.keyboardWillShowNotification , object: nil)
@@ -109,51 +115,43 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
         NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillHideNotification, object: nil)
     }
     
-    @objc func keyBoardWillShow (_ notification:Notification)  {
-        let userInfoDic = notification.userInfo
-        let keyboardSize = userInfoDic![UIResponder.keyboardFrameEndUserInfoKey] as! NSValue
-        let KeyboardHight = keyboardSize.cgRectValue.height
-        
-        if self.view.frame.origin.y == 0{
-            self.view.frame.origin.y -= KeyboardHight
-            
-            
-            
+    
+    
+    @objc func keyBoardWillShow (_ notification:Notification) {
+        view.frame.origin.y = -getKeyboardHeight(notification)
+    }
+    
+    @objc func keyBoardWillHide (_ notification:Notification) {
+        view.frame.origin.y = 0
+    }
+    func getKeyboardHeight(_ notification: Notification) -> CGFloat {
+        let userInfo = notification.userInfo!
+        let keyboardSize = userInfo[UIResponder.keyboardFrameEndUserInfoKey] as! NSValue // of CGRect
+        if bottomTextField.isFirstResponder {
+            return keyboardSize.cgRectValue.height
+        } else {
+            return 0
         }
     }
     
-    @objc func keyBoardWillHide (_ notification:Notification)
-    {
-        
-        let userInfoDic = notification.userInfo
-        let keyboardSize = userInfoDic![UIResponder.keyboardFrameEndUserInfoKey] as! NSValue
-        let KeyboardHight = keyboardSize.cgRectValue.height
-        keyboardHight = KeyboardHight
-        if self.view.frame.origin.y != 0 {
-            self.view.frame.origin.y += KeyboardHight
-            
-        }
-    }
+    
     
     
     
     
     //    MARK:- Setup Scene
     
-    func setupScene()
-    {
+    func setupScene() {
+        memeImageView.contentMode = .scaleAspectFit
+        memeImageView.backgroundColor = .lightGray
+        captureByCameraBtn.tintColor = .black
+        cancelButton.tintColor = .black
+        shareBtn.tintColor = .blue
+        
         //  top text field styling
         styleTextField(textField: topTextField)
-        topTextField.text = "Top"
-        let panTop = UIPanGestureRecognizer(target: self, action: #selector(handleTopPan(sender:)))
-        topTextField.addGestureRecognizer(panTop)
-        
-        
-        //  bottom text field styling
         styleTextField(textField: bottomTextField)
-        bottomTextField.text = "Bottom"
-        let panBottom = UIPanGestureRecognizer(target: self, action: #selector(handleBottomPan(sender:)))
-        bottomTextField.addGestureRecognizer(panBottom)
+        
         
     }
     
@@ -161,57 +159,60 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
     
     
     //    MARK:- Style textFields
-    func styleTextField ( textField : UITextField)
-    {
+    func styleTextField ( textField : UITextField )  {
         let attributes : [NSAttributedString.Key : Any] =
             [
                 NSAttributedString.Key.font:UIFont(name: "HelveticaNeue-CondensedBlack", size: 40)!,
                 NSAttributedString.Key.foregroundColor : UIColor.white,
                 NSAttributedString.Key.strokeColor: UIColor.black,
                 NSAttributedString.Key.strokeWidth:-4
-                
         ]
-        
+        textField.textAlignment = .center
+        textField.borderStyle = .none
+        textField.textColor = UIColor.white
         textField.defaultTextAttributes = attributes
         textField.delegate = self
         textField.textAlignment = .center
         textField.borderStyle = .none
+        let panTop = UIPanGestureRecognizer(target: self, action: #selector(handlePantop(sender:)))
+        let panBottomm = UIPanGestureRecognizer(target: self, action: #selector(handlePanBottom(sender:)))
+        topTextField.addGestureRecognizer(panTop)
+        bottomTextField.addGestureRecognizer(panBottomm)
+        if textField.tag == 0  {
+            topTextField.text = "Top"
+        }  else {
+            bottomTextField.text = "Bottom"
+        }
         
     }
     
     //    MARK:- Handel pan gestures for top and bottom textFields
-    @objc func handleTopPan (sender:UIPanGestureRecognizer)
-    {
-        let translation = sender.translation(in: sender.view)
-        self.topTextField.center.x += translation.x
-        self.topTextField.center.y += translation.y
-        sender.setTranslation(CGPoint.zero, in: sender.view)
-    }
-    @objc func handleBottomPan(sender:UIPanGestureRecognizer)
-    {
-        let translation = sender.translation(in: sender.view)
-        self.bottomTextField.center.x += translation.x
-        self.bottomTextField.center.y += translation.y
-        sender.setTranslation(CGPoint.zero, in: sender.view)
-    }
     
+    @objc func handlePantop(sender:UIPanGestureRecognizer) {
+        let translation = sender.translation(in: sender.view)
+        topTextField.center.x += translation.x
+        topTextField.center.y += translation.y
+        sender.setTranslation(CGPoint.zero, in: sender.view)
+    }
+    @objc func handlePanBottom(sender:UIPanGestureRecognizer) {
+        let translation = sender.translation(in: sender.view)
+        bottomTextField.center.x += translation.x
+        bottomTextField.center.y += translation.y
+        sender.setTranslation(CGPoint.zero, in: sender.view)
+    }
     
     // MARK:-   UIImagePicker delegat functions
-    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any])
-    {
-        if let image = info[UIImagePickerController.InfoKey.originalImage] as? UIImage
-        {
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+        if let image = info[UIImagePickerController.InfoKey.originalImage] as? UIImage {
             self.memeImageView.image = image
             picker.dismiss(animated: true, completion: nil)
         }
         shareBtn.isEnabled = (memeImageView.image != nil)
     }
-    func imagePickerControllerDidCancel(_ picker: UIImagePickerController)
-    {
+    func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
         picker.dismiss(animated: true, completion: nil)
         
     }
-    
     
     
     // MARK:-    TextField delegat functions
@@ -221,26 +222,10 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
     }
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-           textField.resignFirstResponder()
-           return true
-       }
-       
+        textField.resignFirstResponder()
+        return true
+    }
     
-//   additional feature to reset text to top and bottom if user input was nothing.
-//    func textFieldDidEndEditing(_ textField: UITextField) {
-//        if textField.text == "" {
-//            if textField.tag == 0
-//            {
-//                textField.text = "Top"
-//
-//            }
-//            else
-//            {
-//                textField.text = "Bottom"
-//            }
-//        }
-//    }
-   
     
 }
 
