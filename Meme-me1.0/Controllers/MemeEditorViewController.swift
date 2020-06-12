@@ -6,22 +6,27 @@
 //  Copyright © 2020 Diab. All rights reserved.
 //
 
+//
+//let appDelegate = UIApplication.shared.delegate as! AppDelegate
+//memes = appDelegate.memes
+
 import UIKit
 
 class MemeEditorViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate, UITextFieldDelegate  {
+    //MARK: - outlets
     @IBOutlet weak var shareBtn: UIButton!
     @IBOutlet weak var cancelButton: UIButton!
     @IBOutlet weak var toolBar: UIToolbar!
-    @IBOutlet weak var navBar: UINavigationItem!
-    //MARK:         - outlets and Variables
+    @IBOutlet weak var navigationBar: UINavigationBar!
     @IBOutlet weak var topTextField: UITextField!
     @IBOutlet weak var bottomTextField: UITextField!
     @IBOutlet weak var captureByCameraBtn: UIBarButtonItem!
     @IBOutlet weak var memeImageView: UIImageView!
-    //variables
+    
+    //MARK: - variables
     let pickerController = UIImagePickerController()
     var keyboardHight : CGFloat=0
-    
+    var memeNote = ""
     
     //    MARK:- Life cycle
     override func viewWillAppear(_ animated: Bool) {
@@ -36,12 +41,34 @@ class MemeEditorViewController: UIViewController, UIImagePickerControllerDelegat
     }
     
     override func viewDidLoad() {
-        super.viewDidLoad() 
+        super.viewDidLoad()
+        
+        topTextField.delegate = self
+        bottomTextField.delegate = self
         setupScene()
     }
     
     
     // MARK:- IBActions
+    
+    @IBAction func addNotePressed(_ sender: Any) {
+        
+        
+        let alert = UIAlertController(title: "MemeNote", message: "write note ", preferredStyle: .alert)
+        alert.addTextField { (textField) in
+            textField.placeholder = " Add note with meme "
+            
+        }
+        let action = UIAlertAction(title: "Done!", style: .default) { (action) in
+            if let alertTextField = alert.textFields?[0] {
+                self.memeNote = alertTextField.text!
+            }
+        }
+        alert.addAction(action)
+        present(alert, animated: true,completion: nil)
+        
+    }
+    
     
     func pickWithSource (sourceType : UIImagePickerController.SourceType)
     {
@@ -72,21 +99,38 @@ class MemeEditorViewController: UIViewController, UIImagePickerControllerDelegat
                 self.dismiss(animated: true, completion: nil)
             }
         }
+        
         present(activityController, animated: true, completion: nil)
+    }
+    //    MARK:- get date
+    func getDate ()->String
+    {
+        let currentDateTime = Date()
+        let formater = DateFormatter()
+        formater.timeStyle = .medium
+        formater.dateStyle = .short
+        let dateString = formater.string(from: currentDateTime)
+        return dateString
     }
     
     @IBAction func cancelButtonPressed(_ sender: UIButton) {
         topTextField.text = "Top"
         bottomTextField.text = "Bottom"
+        memeNote = ""
         memeImageView.image = nil
         shareBtn.isEnabled = false
+        let sentTableVC = storyboard?.instantiateViewController(identifier: "sentMemeTableVC") as! sentMemeTableVC
+        modalPresentationStyle = .fullScreen
+        present(sentTableVC,animated: true,completion: nil)
     }
     
     //    MARK:- save meme
-    
     func save(_ memedImage:UIImage) {
+        let date = getDate()
+        let meme = Meme(topText: topTextField.text!, bottomText: bottomTextField.text!, origionalImage: memeImageView.image! ,memedImage: memedImage, memeNote: memeNote, dateCreated: date)
         
-        let meme = MemeImageModel(topText: topTextField.text!, bottomText: bottomTextField.text!, origionalImage: memeImageView.image! ,memedImage: memedImage)
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        appDelegate.memes.append(meme)
     }
     
     
@@ -94,11 +138,13 @@ class MemeEditorViewController: UIViewController, UIImagePickerControllerDelegat
     //    MARK:- Generate Memed Image
     func generateMemedImage() -> UIImage {
         toolBar.isHidden = true
+        navigationBar.isHidden = true
         UIGraphicsBeginImageContext(view.frame.size)
         view.drawHierarchy(in: view.frame, afterScreenUpdates: true)
         let memedImage:UIImage = UIGraphicsGetImageFromCurrentImageContext()!
         UIGraphicsEndImageContext()
         toolBar.isHidden = false
+        navigationBar.isHidden = false
         return memedImage
     }
     
@@ -152,39 +198,21 @@ class MemeEditorViewController: UIViewController, UIImagePickerControllerDelegat
         styleTextField(textField: topTextField)
         styleTextField(textField: bottomTextField)
         
-        
-    }
-    
-    
-    
-    
-    //    MARK:- Style textFields
-    func styleTextField ( textField : UITextField )  {
-        let attributes : [NSAttributedString.Key : Any] =
-            [
-                NSAttributedString.Key.font:UIFont(name: "HelveticaNeue-CondensedBlack", size: 40)!,
-                NSAttributedString.Key.foregroundColor : UIColor.white,
-                NSAttributedString.Key.strokeColor: UIColor.black,
-                NSAttributedString.Key.strokeWidth:-4
-        ]
-        textField.textAlignment = .center
-        textField.borderStyle = .none
-        textField.textColor = UIColor.white
-        textField.defaultTextAttributes = attributes
-        textField.delegate = self
-        textField.textAlignment = .center
-        textField.borderStyle = .none
+        topTextField.text = "Top"
+        bottomTextField.text = "Bottom"
         let panTop = UIPanGestureRecognizer(target: self, action: #selector(handlePantop(sender:)))
         let panBottomm = UIPanGestureRecognizer(target: self, action: #selector(handlePanBottom(sender:)))
         topTextField.addGestureRecognizer(panTop)
         bottomTextField.addGestureRecognizer(panBottomm)
-        if textField.tag == 0  {
-            topTextField.text = "Top"
-        }  else {
-            bottomTextField.text = "Bottom"
-        }
+        
+        
         
     }
+    
+    
+    
+    
+    
     
     //    MARK:- Handel pan gestures for top and bottom textFields
     

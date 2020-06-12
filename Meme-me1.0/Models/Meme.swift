@@ -9,10 +9,11 @@
 import Foundation
 import UIKit
 
-struct MemeImageModel {
+struct Meme{
     let topText:String?
     let bottomText:String?
     let origionalImage:UIImage
     let memedImage:UIImage
-    
+    let memeNote:String
+    let dateCreated:String
 }
