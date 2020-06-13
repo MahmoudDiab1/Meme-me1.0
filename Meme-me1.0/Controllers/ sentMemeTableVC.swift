@@ -19,7 +19,7 @@ class sentMemeTableVC:UIViewController, UITableViewDelegate, UITableViewDataSour
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         return appDelegate.memes
     }
-    
+       let kTableViewCellID = "memeTableViewCell"
 //    lifeCycle
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
@@ -39,14 +39,13 @@ class sentMemeTableVC:UIViewController, UITableViewDelegate, UITableViewDataSour
         present(editMemeVC, animated: true , completion: nil)
     }
     
-    
     //    tableView datasource and delegate functions.
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return memes.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "memeTableViewCell", for: indexPath) as! memeTableViewCell
+        let cell = tableView.dequeueReusableCell(withIdentifier:kTableViewCellID , for: indexPath) as! memeTableViewCell
         let meme = memes[indexPath.row]
         cell.configureCell(with: meme )
         return cell

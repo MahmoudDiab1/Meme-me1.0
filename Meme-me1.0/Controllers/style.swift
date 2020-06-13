@@ -30,6 +30,6 @@ func styleTextField ( textField : UITextField )  {
 // MARK:- style memeImage
 func styleMemeImg (sentMemeImage : UIImageView) {
           sentMemeImage.layer.cornerRadius = 10
-          sentMemeImage.layer.borderWidth = 1
+    sentMemeImage.layer.borderWidth = 0.5
           sentMemeImage.layer.borderColor = UIColor.white.cgColor
 }

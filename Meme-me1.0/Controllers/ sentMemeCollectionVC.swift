@@ -18,6 +18,7 @@ class  sentMemeCollectionVC: UICollectionViewController {
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         return appDelegate.memes
     }
+    let kCollectionViewCellID = "sentCollectionViewCell"
     
     //    MARK:- lifeCycle
     override func viewWillAppear(_ animated: Bool) {
@@ -52,7 +53,7 @@ class  sentMemeCollectionVC: UICollectionViewController {
     }
     
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier:  "sentCollectionViewCell" , for: indexPath) as! memeCollectionViewCell
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier:  kCollectionViewCellID  , for: indexPath) as! memeCollectionViewCell
         let meme = memes[indexPath.item]
         cell.configureCell(with: meme)
         return cell

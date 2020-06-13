@@ -114,14 +114,15 @@ class MemeEditorViewController: UIViewController, UIImagePickerControllerDelegat
     }
     
     @IBAction func cancelButtonPressed(_ sender: UIButton) {
-        topTextField.text = "Top"
-        bottomTextField.text = "Bottom"
-        memeNote = ""
-        memeImageView.image = nil
-        shareBtn.isEnabled = false
-        let sentTableVC = storyboard?.instantiateViewController(identifier: "sentMemeTableVC") as! sentMemeTableVC
-        modalPresentationStyle = .fullScreen
-        present(sentTableVC,animated: true,completion: nil)
+//        topTextField.text = "Top"
+//        bottomTextField.text = "Bottom"
+//        memeNote = ""
+//        memeImageView.image = nil
+//        shareBtn.isEnabled = false
+//        let sentTableVC = storyboard?.instantiateViewController(identifier: "sentMemeTableVC") as! sentMemeTableVC
+//        modalPresentationStyle = .fullScreen
+//        present(sentTableVC,animated: true,completion: nil)
+        dismiss(animated: true, completion: nil)
     }
     
     //    MARK:- save meme
